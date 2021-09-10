@@ -1,1 +1,1 @@
-# Single-Copy-Gene-Pipeline
+# Nitfix-Recon
