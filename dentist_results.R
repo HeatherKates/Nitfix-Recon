@@ -1,17 +1,14 @@
 library(corHMM)
 library(dplyr)
+library(stringr)
 #Load ten .RData files that each include a corhmm object
-files=list.files(pattern=".*dentist.RData")
-for (i in 1:9){load(files[i])
+files=list.files(path="../",pattern=".*dentist.RData")
+for (i in 1:9){load(paste("../",files[i],sep=""))
   name=paste("confidence_results",i,sep="")
   assign(name,confidence_results)
   }
 #Make a list of the confidence_results objects
 dentists=mget(ls(pattern="confidence_results.*"))
-
-lapply(dentists, `[[`, 1)
-
-
 
 #function
 select_top_ips <- function(x) {
@@ -26,9 +23,14 @@ select_top_ips <- function(x) {
   new.sorted=head(arrange(new,neglnL,.by_group = FALSE),10)
   assign(name,new.sorted,envir = .GlobalEnv)
 }
-for (i in 1:1){
+#loop through the number of dentist objects and run the function
+for (i in 1:9){
   ip=select_top_ips(dentists[1]$confidence_results$results)
   iname=paste("ip",i,sep="")
   assign(iname,ip)
 }
-test=as.data.frame(dentists[1]$confidence_results$results)
+#combine and write ip values to csv sheet formatted to be looped through by corHMM
+Pattern1<-grep("ip\\d",names(.GlobalEnv),value=TRUE)
+Pattern1_list<-do.call("list",mget(Pattern1))
+All_ips=as.data.frame(bind_rows(Pattern1_list, .id = "neglnL"))
+      
